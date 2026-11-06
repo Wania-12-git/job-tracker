@@ -1,10 +1,10 @@
-// ==========================================
-// JOBTRACKER - JAVASCRIPT
-// ==========================================
+"use strict";
 
-// 1. VARIABLES AND ARRAYS
+// ======================================
+// 1. DEFAULT APPLICATIONS
+// ======================================
 
-const STORAGE_KEY = "jobTrackerApplications";
+const STORAGE_KEY = "jobtracker_applications";
 
 const DEFAULT_APPLICATIONS = [
   {
@@ -33,156 +33,131 @@ const DEFAULT_APPLICATIONS = [
   }
 ];
 
+const VALID_STATUSES = [
+  "Applied",
+  "Interview",
+  "Offer",
+  "Rejected"
+];
 
-// 2. LOAD APPLICATIONS FROM LOCAL STORAGE
+
+// ======================================
+// 2. LOAD AND SAVE DATA
+// ======================================
 
 function loadApplications() {
-
   try {
+    const savedData = localStorage.getItem(STORAGE_KEY);
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (saved === null) {
+    if (savedData === null) {
       return [...DEFAULT_APPLICATIONS];
     }
 
-    const parsed = JSON.parse(saved);
+    const parsedData = JSON.parse(savedData);
 
-    return Array.isArray(parsed)
-      ? parsed
-      : [...DEFAULT_APPLICATIONS];
+    if (!Array.isArray(parsedData)) {
+      return [...DEFAULT_APPLICATIONS];
+    }
+
+    return parsedData.filter(app =>
+      app &&
+      Number.isFinite(app.id) &&
+      typeof app.company === "string" &&
+      typeof app.position === "string" &&
+      typeof app.location === "string" &&
+      typeof app.date === "string" &&
+      VALID_STATUSES.includes(app.status)
+    );
 
   } catch (error) {
-
-    console.error("Could not read saved applications:", error);
-
+    console.error("Error loading applications:", error);
     return [...DEFAULT_APPLICATIONS];
-
   }
-
 }
-
-
-// MAIN APPLICATION ARRAY
 
 let applications = loadApplications();
 
 
-// 3. SAVE APPLICATIONS
-
 function saveApplications() {
-
   try {
-
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(applications)
     );
 
+    return true;
+
   } catch (error) {
-
-    console.error("Could not save applications:", error);
-
-    const message = document.getElementById("application-message");
-
-    if (message) {
-      message.textContent =
-        "Your browser could not save the changes.";
-    }
-
+    console.error("Error saving applications:", error);
+    return false;
   }
-
 }
 
 
-// 4. UPDATE DASHBOARD STATISTICS
+// ======================================
+// 3. UPDATE STATISTICS
+// ======================================
 
-function updateOverview() {
+function updateStatistics() {
 
-  const counts = {
+  const total = applications.length;
 
-    "total-count": applications.length,
+  const applied = applications.filter(
+    app => app.status === "Applied"
+  ).length;
 
-    "interview-count":
-      applications.filter(app => app.status === "Interview").length,
+  const interviews = applications.filter(
+    app => app.status === "Interview"
+  ).length;
 
-    "offer-count":
-      applications.filter(app => app.status === "Offer").length,
+  const offers = applications.filter(
+    app => app.status === "Offer"
+  ).length;
 
-    "rejected-count":
-      applications.filter(app => app.status === "Rejected").length
+  document.getElementById("total-count").textContent = total;
 
-  };
+  document.getElementById("applied-count").textContent = applied;
 
-  Object.entries(counts).forEach(([id, count]) => {
+  document.getElementById("interview-count").textContent = interviews;
 
-    const element = document.getElementById(id);
-
-    if (element) {
-      element.textContent = count;
-    }
-
-  });
-
+  document.getElementById("offer-count").textContent = offers;
 }
 
 
-// 5. DISPLAY APPLICATIONS IN THE TABLE
+// ======================================
+// 4. DISPLAY APPLICATIONS
+// ======================================
 
 function displayApplications() {
 
   const table = document.getElementById("applications-table");
 
-  const filter = document.getElementById("status-filter");
+  if (!table) return;
 
-  if (!table || !filter) return;
+  const selectedFilter =
+    document.getElementById("status-filter").value;
 
   table.replaceChildren();
 
-  const selectedStatus = filter.value;
+  const filteredApplications = applications.filter(app => {
 
-  const visibleApplications = applications.filter(app =>
+    return selectedFilter === "All" ||
+           app.status === selectedFilter;
 
-    selectedStatus === "All" || app.status === selectedStatus
+  });
 
-  );
-
-
-  // Show message if there are no matching applications
-
-  if (visibleApplications.length === 0) {
+  filteredApplications.forEach(app => {
 
     const row = document.createElement("tr");
 
-    const cell = document.createElement("td");
+    const values = [
+      app.company,
+      app.position,
+      app.location,
+      app.date
+    ];
 
-    cell.colSpan = 6;
-
-    cell.textContent = "No applications match this filter.";
-
-    row.appendChild(cell);
-
-    table.appendChild(row);
-
-  }
-
-
-  // LOOP THROUGH APPLICATIONS
-
-  visibleApplications.forEach(application => {
-
-    const row = document.createElement("tr");
-
-
-    // COMPANY, POSITION, LOCATION AND DATE
-
-    [
-      application.company,
-      application.position,
-      application.location,
-      application.date
-
-    ].forEach(value => {
+    values.forEach(value => {
 
       const cell = document.createElement("td");
 
@@ -197,13 +172,13 @@ function displayApplications() {
 
     const statusCell = document.createElement("td");
 
-    const pill = document.createElement("span");
+    const statusBadge = document.createElement("span");
 
-    pill.className = "status-pill";
+    statusBadge.className = "status";
 
-    pill.textContent = application.status;
+    statusBadge.textContent = app.status;
 
-    statusCell.appendChild(pill);
+    statusCell.appendChild(statusBadge);
 
     row.appendChild(statusCell);
 
@@ -220,120 +195,93 @@ function displayApplications() {
 
     deleteButton.textContent = "Delete";
 
-    deleteButton.setAttribute(
-      "aria-label",
-      `Delete ${application.company} application`
-    );
-
     deleteButton.addEventListener("click", () => {
-
-      deleteApplication(application.id);
-
+      deleteApplication(app.id);
     });
 
     actionCell.appendChild(deleteButton);
 
     row.appendChild(actionCell);
 
-
-    // ADD ROW TO TABLE
-
     table.appendChild(row);
 
   });
 
 
-  updateOverview();
+  // EMPTY MESSAGE
 
+  const emptyMessage = document.getElementById("empty-message");
+
+  if (filteredApplications.length === 0) {
+    emptyMessage.textContent = "No applications found.";
+  } else {
+    emptyMessage.textContent = "";
+  }
+
+  updateStatistics();
 }
 
 
-// 6. ADD A NEW APPLICATION
+// ======================================
+// 5. ADD APPLICATION
+// ======================================
 
 function addApplication(event) {
 
   event.preventDefault();
 
-  const form = event.currentTarget;
+  const company = document.getElementById("company").value.trim();
 
+  const position = document.getElementById("position").value.trim();
 
-  // CREATE A NEW APPLICATION OBJECT
+  const location = document.getElementById("location").value.trim();
 
-  const newApplication = {
+  const date = document.getElementById("date").value;
 
-    id: Date.now(),
-
-    company: document.getElementById("company").value.trim(),
-
-    position: document.getElementById("position").value.trim(),
-
-    location: document.getElementById("location").value.trim(),
-
-    date: document.getElementById("date").value,
-
-    status: document.getElementById("status").value
-
-  };
-
-
-  // CHECK REQUIRED INFORMATION
-
-  if (
-    !newApplication.company ||
-    !newApplication.position ||
-    !newApplication.location ||
-    !newApplication.date
-  ) {
-
-    return;
-
-  }
-
-
-  // ADD APPLICATION TO ARRAY
-
-  applications.push(newApplication);
-
-
-  // SAVE CHANGES
-
-  saveApplications();
-
-
-  // RESET FILTER
-
-  const filter = document.getElementById("status-filter");
-
-  if (filter) {
-    filter.value = "All";
-  }
-
-
-  // UPDATE TABLE
-
-  displayApplications();
-
-
-  // CLEAR FORM
-
-  form.reset();
-
-
-  // SUCCESS MESSAGE
+  const status = document.getElementById("status").value;
 
   const message = document.getElementById("application-message");
 
-  if (message) {
 
-    message.textContent =
-      `${newApplication.company} was added successfully.`;
-
+  if (!company || !position || !location || !date) {
+    message.textContent = "Please complete every field.";
+    return;
   }
+
+  if (!VALID_STATUSES.includes(status)) {
+    message.textContent = "Please select a valid status.";
+    return;
+  }
+
+
+  const newApplication = {
+    id: Date.now(),
+    company,
+    position,
+    location,
+    date,
+    status
+  };
+
+
+  applications.push(newApplication);
+
+  const saved = saveApplications();
+
+  displayApplications();
+
+  document.getElementById("application-form").reset();
+
+  message.textContent = saved
+    ? "Application added successfully!"
+    : "Added temporarily, but could not save it.";
 
 }
 
 
-// 7. DELETE AN APPLICATION
+// ======================================
+// 6. DELETE APPLICATION
+// ======================================
 
 function deleteApplication(id) {
 
@@ -343,10 +291,15 @@ function deleteApplication(id) {
 
   displayApplications();
 
+  document.getElementById("application-message").textContent =
+    "Application deleted.";
+
 }
 
 
-// 8. SET UP DASHBOARD EVENTS
+// ======================================
+// 7. DASHBOARD EVENTS
+// ======================================
 
 function setupDashboard() {
 
@@ -354,81 +307,73 @@ function setupDashboard() {
 
   const filter = document.getElementById("status-filter");
 
-
-  // CHECK WHETHER DASHBOARD EXISTS
-
   if (!form || !filter) return;
-
-
-  // FORM SUBMISSION EVENT
 
   form.addEventListener("submit", addApplication);
 
-
-  // FILTER CHANGE EVENT
-
   filter.addEventListener("change", displayApplications);
-
-
-  // INITIAL DISPLAY
 
   displayApplications();
 
 }
 
 
-// 9. LOGIN AND SIGNUP DEMONSTRATION
+// ======================================
+// 8. LOGIN DEMONSTRATION
+// ======================================
 
-function setupDemoAuthForms() {
+function setupLogin() {
 
-  const loginForm = document.getElementById("login-form");
+  const form = document.getElementById("login-form");
 
+  if (!form) return;
 
-  // LOGIN FORM
+  form.addEventListener("submit", event => {
 
-  if (loginForm) {
+    event.preventDefault();
 
-    loginForm.addEventListener("submit", event => {
+    document.getElementById("login-message").textContent =
+      "Demo only: real authentication is not connected yet.";
 
-      event.preventDefault();
-
-      document.getElementById("login-message").textContent =
-
-        "Demo only: secure login is not connected yet. No password was sent or saved.";
-
-    });
-
-  }
-
-
-  const signupForm = document.getElementById("signup-form");
-
-
-  // SIGNUP FORM
-
-  if (signupForm) {
-
-    signupForm.addEventListener("submit", event => {
-
-      event.preventDefault();
-
-      document.getElementById("signup-message").textContent =
-
-        "Demo only: account creation is not connected yet. No password was sent or saved.";
-
-    });
-
-  }
+  });
 
 }
 
 
-// 10. START APPLICATION
+// ======================================
+// 9. SIGNUP DEMONSTRATION
+// ======================================
+
+function setupSignup() {
+
+  const form = document.getElementById("signup-form");
+
+  if (!form) return;
+
+  form.addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    document.getElementById("signup-message").textContent =
+      "Demo only: account creation is not connected yet.";
+
+  });
+
+}
+
+
+// ======================================
+// 10. START THE APPLICATION
+// ======================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
   setupDashboard();
 
-  setupDemoAuthForms();
+  setupLogin();
+
+  setupSignup();
+
+  console.log("JobTracker successfully loaded!");
 
 });

@@ -4,83 +4,93 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JobTracker | Login</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
-
 <body>
 
-<header class="site-header">
-  <a class="brand" href="index.html">JobTracker<span>.</span></a>
-  <p class="header-note">Welcome back.</p>
+<header class="header">
+  <a class="logo" href="index.html">JobTracker<span>.</span></a>
+  <p>Welcome back!</p>
 </header>
 
-<nav class="site-nav" aria-label="Main navigation">
+<nav class="navigation">
   <a href="index.html">Home</a>
   <a class="active" href="login.html">Login</a>
-  <a href="signup.html">Sign up</a>
+  <a href="signup.html">Sign Up</a>
   <a href="dashboard.html">Dashboard</a>
 </nav>
 
-<main class="auth-layout">
-
+<main class="auth-container">
   <section class="auth-card">
-
-    <p class="eyebrow">GOOD TO SEE YOU AGAIN</p>
-    <h1>Log in</h1>
-
-    <p class="muted">
-      This is a front-end demo. Account authentication
-      is not connected yet.
-    </p>
+    <h1>Welcome back</h1>
+    <p>Login functionality is currently a demonstration.</p>
 
     <form id="login-form">
+      <label for="email">Email address</label>
+      <input type="email" id="email" required placeholder="you@example.com">
 
-      <label for="login-email">Email address</label>
-      <input
-        id="login-email"
-        name="email"
-        type="email"
-        placeholder="you@example.com"
-        autocomplete="email"
-        required
-      >
+      <label for="password">Password</label>
+      <input type="password" id="password" required placeholder="Password">
 
-      <label for="login-password">Password</label>
-      <input
-        id="login-password"
-        name="password"
-        type="password"
-        placeholder="Enter your password"
-        autocomplete="current-password"
-        required
-      >
-
-      <button class="button full-width" type="submit">
-        Continue
-      </button>
-
-      <p id="login-message" class="form-message"
-         role="status" aria-live="polite"></p>
-
+      <button class="button full" type="submit">Login</button>
+      <p id="login-message" class="message" role="status"></p>
     </form>
 
-    <p class="auth-switch">
-      New to JobTracker?
-      <a href="signup.html">Create a demo account</a>.
-    </p>
-
+    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
   </section>
-
 </main>
 
-<footer class="site-footer">
-  <p>© 2026 JobTracker. A front-end learning project.</p>
+<footer>
+  <p>© 2026 JobTracker.</p>
+</footer>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobTracker | Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<header class="header">
+  <a class="logo" href="index.html">JobTracker<span>.</span></a>
+  <p>Welcome back!</p>
+</header>
+
+<nav class="navigation">
+  <a href="index.html">Home</a>
+  <a class="active" href="login.html">Login</a>
+  <a href="signup.html">Sign Up</a>
+  <a href="dashboard.html">Dashboard</a>
+</nav>
+
+<main class="auth-container">
+  <section class="auth-card">
+    <h1>Welcome back</h1>
+    <p>Login functionality is currently a demonstration.</p>
+
+    <form id="login-form">
+      <label for="email">Email address</label>
+      <input type="email" id="email" required placeholder="you@example.com">
+
+      <label for="password">Password</label>
+      <input type="password" id="password" required placeholder="Password">
+
+      <button class="button full" type="submit">Login</button>
+      <p id="login-message" class="message" role="status"></p>
+    </form>
+
+    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 JobTracker.</p>
 </footer>
 
 </body>

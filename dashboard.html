@@ -4,81 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JobTracker | Dashboard</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
-
 <body>
 
-<header class="site-header">
-  <a class="brand" href="index.html">JobTracker<span>.</span></a>
-  <p class="header-note">Your opportunities, all in one place.</p>
+<header class="header">
+  <a class="logo" href="index.html">JobTracker<span>.</span></a>
+  <p>Your personal application manager.</p>
 </header>
 
-<nav class="site-nav" aria-label="Main navigation">
+<nav class="navigation">
   <a href="index.html">Home</a>
   <a href="login.html">Login</a>
-  <a href="signup.html">Sign up</a>
+  <a href="signup.html">Sign Up</a>
   <a class="active" href="dashboard.html">Dashboard</a>
 </nav>
 
-<main class="dashboard-main">
+<main class="dashboard">
 
-  <section class="page-intro">
-    <div>
-      <p class="eyebrow">YOUR CONTROL CENTRE</p>
-      <h1>My dashboard</h1>
-      <p class="muted">A little progress each day adds up.</p>
-    </div>
-
-    <span class="local-badge">Saved in this browser</span>
+  <section class="welcome">
+    <p class="eyebrow">YOUR WORKSPACE</p>
+    <h1>My Dashboard</h1>
+    <p>Manage your job applications in one place.</p>
   </section>
 
-  <!-- APPLICATION STATISTICS -->
-
-  <section class="stats-grid" aria-label="Application overview">
-
+  <section class="statistics">
     <article class="stat-card">
-      <span>Total applications</span>
+      <p>Total Applications</p>
       <strong id="total-count">0</strong>
     </article>
 
     <article class="stat-card">
-      <span>Interviews</span>
+      <p>Applied</p>
+      <strong id="applied-count">0</strong>
+    </article>
+
+    <article class="stat-card">
+      <p>Interviews</p>
       <strong id="interview-count">0</strong>
     </article>
 
     <article class="stat-card">
-      <span>Offers</span>
+      <p>Offers</p>
       <strong id="offer-count">0</strong>
     </article>
-
-    <article class="stat-card">
-      <span>Rejected</span>
-      <strong id="rejected-count">0</strong>
-    </article>
-
   </section>
 
-  <!-- APPLICATION TABLE -->
-
   <section class="panel">
-
     <div class="panel-heading">
+      <h2>My Applications</h2>
 
       <div>
-        <p class="eyebrow">THE RUNNING LIST</p>
-        <h2>My applications</h2>
-      </div>
-
-      <label class="filter-control" for="status-filter">
-        Filter status
-
+        <label for="status-filter">Filter:</label>
         <select id="status-filter">
           <option value="All">All statuses</option>
           <option value="Applied">Applied</option>
@@ -86,129 +64,74 @@
           <option value="Offer">Offer</option>
           <option value="Rejected">Rejected</option>
         </select>
-
-      </label>
-
-    </div>
-
-    <div class="table-wrap">
-
-      <table>
-
-        <caption class="visually-hidden">
-          Your job applications
-        </caption>
-
-        <thead>
-          <tr>
-            <th scope="col">Company</th>
-            <th scope="col">Position</th>
-            <th scope="col">Location</th>
-            <th scope="col">Date applied</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-
-        <tbody id="applications-table">
-        </tbody>
-
-      </table>
-
-    </div>
-
-    <p class="table-help">
-      Your changes are stored in this browser using localStorage.
-    </p>
-
-  </section>
-
-  <!-- ADD APPLICATION FORM -->
-
-  <section class="panel form-panel">
-
-    <div class="panel-heading">
-      <div>
-        <p class="eyebrow">ADD SOMETHING NEW</p>
-        <h2>Add an application</h2>
       </div>
     </div>
 
-    <form id="application-form" class="application-form">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Position</th>
+            <th>Location</th>
+            <th>Date Applied</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
+        <tbody id="applications-table"></tbody>
+      </table>
+    </div>
+
+    <p id="empty-message" class="message"></p>
+  </section>
+
+  <section class="panel">
+    <h2>Add a Job Application</h2>
+
+    <form id="application-form">
       <div class="form-grid">
-
         <div>
-          <label for="company">Company name</label>
-          <input
-            id="company"
-            name="company"
-            type="text"
-            placeholder="e.g. Northstar Labs"
-            required
-          >
+          <label for="company">Company Name</label>
+          <input type="text" id="company" required placeholder="Company">
         </div>
 
         <div>
-          <label for="position">Job position</label>
-          <input
-            id="position"
-            name="position"
-            type="text"
-            placeholder="e.g. Junior Developer"
-            required
-          >
+          <label for="position">Job Position</label>
+          <input type="text" id="position" required placeholder="Job title">
         </div>
 
         <div>
           <label for="location">Location</label>
-          <input
-            id="location"
-            name="location"
-            type="text"
-            placeholder="e.g. Toronto or Remote"
-            required
-          >
+          <input type="text" id="location" required placeholder="City">
         </div>
 
         <div>
-          <label for="date">Date applied</label>
-          <input
-            id="date"
-            name="date"
-            type="date"
-            required
-          >
+          <label for="date">Date Applied</label>
+          <input type="date" id="date" required>
         </div>
 
         <div>
-          <label for="status">Application status</label>
-
-          <select id="status" name="status">
+          <label for="status">Status</label>
+          <select id="status" required>
             <option value="Applied">Applied</option>
             <option value="Interview">Interview</option>
             <option value="Offer">Offer</option>
             <option value="Rejected">Rejected</option>
           </select>
         </div>
-
       </div>
 
-      <button class="button" type="submit">
-        + Add application
-      </button>
-
-      <p id="application-message" class="form-message"
-         role="status" aria-live="polite"></p>
-
+      <button class="button" type="submit">+ Add Application</button>
+      <p id="application-message" class="message" role="status"></p>
     </form>
-
   </section>
 
 </main>
 
-<footer class="site-footer">
-  <p>© 2026 JobTracker. A front-end learning project.</p>
+<footer>
+  <p>© 2026 JobTracker.</p>
 </footer>
 
 </body>
