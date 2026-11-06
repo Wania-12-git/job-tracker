@@ -1,61 +1,87 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobTracker | Login</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobTracker | Login</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
+
 <body>
 
-    <header>
-        <h1>Welcome Back!</h1>
-        <p>Log in to your JobTracker account.</p>
-    </header>
+<header class="site-header">
+  <a class="brand" href="index.html">JobTracker<span>.</span></a>
+  <p class="header-note">Welcome back.</p>
+</header>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="signup.html">Sign Up</a>
-    </nav>
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html">Home</a>
+  <a class="active" href="login.html">Login</a>
+  <a href="signup.html">Sign up</a>
+  <a href="dashboard.html">Dashboard</a>
+</nav>
 
-    <main>
-        <section>
-            <h2>Login</h2>
+<main class="auth-layout">
 
-            <form action="#" method="post">
+  <section class="auth-card">
 
-                <label for="email">Email Address</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    required
-                >
+    <p class="eyebrow">GOOD TO SEE YOU AGAIN</p>
+    <h1>Log in</h1>
 
-                <label for="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    required
-                >
+    <p class="muted">
+      This is a front-end demo. Account authentication
+      is not connected yet.
+    </p>
 
-                <button type="submit">Login</button>
+    <form id="login-form">
 
-            </form>
+      <label for="login-email">Email address</label>
+      <input
+        id="login-email"
+        name="email"
+        type="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        required
+      >
 
-            <p>Don't have an account?
-                <a href="signup.html">Sign up here</a>
-            </p>
-        </section>
-    </main>
+      <label for="login-password">Password</label>
+      <input
+        id="login-password"
+        name="password"
+        type="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        required
+      >
 
-    <footer>
-        <p>&copy; 2026 JobTracker</p>
-    </footer>
+      <button class="button full-width" type="submit">
+        Continue
+      </button>
+
+      <p id="login-message" class="form-message"
+         role="status" aria-live="polite"></p>
+
+    </form>
+
+    <p class="auth-switch">
+      New to JobTracker?
+      <a href="signup.html">Create a demo account</a>.
+    </p>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>© 2026 JobTracker. A front-end learning project.</p>
+</footer>
 
 </body>
 </html>

@@ -1,70 +1,98 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobTracker | Sign Up</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobTracker | Sign up</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
+
 <body>
 
-    <header>
-        <h1>Create Your Account</h1>
-        <p>Start organising your job search.</p>
-    </header>
+<header class="site-header">
+  <a class="brand" href="index.html">JobTracker<span>.</span></a>
+  <p class="header-note">Start with a clear plan.</p>
+</header>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-    </nav>
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html">Home</a>
+  <a href="login.html">Login</a>
+  <a class="active" href="signup.html">Sign up</a>
+  <a href="dashboard.html">Dashboard</a>
+</nav>
 
-    <main>
-        <section>
-            <h2>Sign Up</h2>
+<main class="auth-layout">
 
-            <form action="#" method="post">
+  <section class="auth-card">
 
-                <label for="name">Full Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Enter your name"
-                    required
-                >
+    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+    <h1>Create an account</h1>
 
-                <label for="email">Email Address</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    required
-                >
+    <p class="muted">
+      This page is a visual demo. It does not create
+      a secure account yet.
+    </p>
 
-                <label for="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Create a password"
-                    required
-                >
+    <form id="signup-form">
 
-                <button type="submit">Create Account</button>
+      <label for="signup-name">Full name</label>
+      <input
+        id="signup-name"
+        name="name"
+        type="text"
+        placeholder="Your name"
+        autocomplete="name"
+        required
+      >
 
-            </form>
+      <label for="signup-email">Email address</label>
+      <input
+        id="signup-email"
+        name="email"
+        type="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        required
+      >
 
-            <p>Already registered?
-                <a href="login.html">Login here</a>
-            </p>
-        </section>
-    </main>
+      <label for="signup-password">Password</label>
+      <input
+        id="signup-password"
+        name="password"
+        type="password"
+        placeholder="Create a password"
+        autocomplete="new-password"
+        minlength="8"
+        required
+      >
 
-    <footer>
-        <p>&copy; 2026 JobTracker</p>
-    </footer>
+      <button class="button full-width" type="submit">
+        Create account
+      </button>
+
+      <p id="signup-message" class="form-message"
+         role="status" aria-live="polite"></p>
+
+    </form>
+
+    <p class="auth-switch">
+      Already registered?
+      <a href="login.html">Log in</a>.
+    </p>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>© 2026 JobTracker. A front-end learning project.</p>
+</footer>
 
 </body>
 </html>

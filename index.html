@@ -1,60 +1,117 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobTracker | Home</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Organise job applications with JobTracker.">
+  <title>JobTracker | Home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-    <header>
-        <h1>JobTracker</h1>
-        <p>Your personal job application manager.</p>
-    </header>
+<header class="site-header">
+  <a class="brand" href="index.html">JobTracker<span>.</span></a>
+  <p class="header-note">A clearer path to your next opportunity.</p>
+</header>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-        <a href="signup.html">Sign Up</a>
-        <a href="dashboard.html">Dashboard</a>
-    </nav>
+<nav class="site-nav" aria-label="Main navigation">
+  <a class="active" href="index.html">Home</a>
+  <a href="login.html">Login</a>
+  <a href="signup.html">Sign up</a>
+  <a href="dashboard.html">Dashboard</a>
+</nav>
 
-    <main>
-        <section>
-            <h2>Take Control of Your Job Search</h2>
-            <p>
-                Organise your applications, track interviews,
-                and stay on top of your career goals.
-            </p>
+<main>
 
-            <img
-                src="https://placehold.co/600x250?text=JobTracker"
-                alt="JobTracker application banner"
-            >
+  <section class="hero">
 
-            <p>
-                Start organising your job applications today!
-            </p>
+    <div class="hero-copy">
+      <p class="eyebrow">YOUR JOB SEARCH, ORGANISED</p>
 
-            <a href="signup.html">Get Started</a>
-            <a href="login.html">Already have an account?</a>
-        </section>
+      <h1>Make your next move
+        <span>your best move.</span>
+      </h1>
 
-        <section>
-            <h2>What You Can Do</h2>
-            <ul>
-                <li>Track job applications.</li>
-                <li>Manage interview dates.</li>
-                <li>Monitor application progress.</li>
-            </ul>
-        </section>
-    </main>
+      <p class="hero-text">
+        Keep applications, interviews and opportunities
+        in one simple place. Spend less time remembering
+        and more time preparing.
+      </p>
 
-    <footer>
-        <p>&copy; 2026 JobTracker. All rights reserved.</p>
-    </footer>
+      <div class="hero-actions">
+        <a class="button" href="dashboard.html">Open dashboard</a>
+        <a class="button button-secondary" href="signup.html">Get started</a>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-card-top">
+        <span class="dot"></span>
+        APPLICATION SNAPSHOT
+      </div>
+
+      <div class="snapshot-number">
+        12 <span>applications</span>
+      </div>
+
+      <div class="snapshot-bar">
+        <span></span>
+      </div>
+
+      <div class="snapshot-stats">
+        <div><strong>4</strong><span>Interviews</span></div>
+        <div><strong>2</strong><span>Offers</span></div>
+        <div><strong>6</strong><span>In progress</span></div>
+      </div>
+
+      <p class="demo-note">
+        Illustrative example, not real account data.
+      </p>
+    </div>
+
+  </section>
+
+  <section class="feature-section">
+
+    <div class="section-heading">
+      <p class="eyebrow">ONE PLACE FOR THE DETAILS</p>
+      <h2>Your search, at a glance.</h2>
+    </div>
+
+    <div class="feature-grid">
+
+      <article class="feature-card">
+        <div class="feature-icon">01</div>
+        <h3>Track applications</h3>
+        <p>Keep company, role, location and application date together.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">02</div>
+        <h3>Watch your progress</h3>
+        <p>Update statuses and see where each opportunity stands.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">03</div>
+        <h3>Stay organised</h3>
+        <p>Filter your list and remove entries you no longer need.</p>
+      </article>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>© 2026 JobTracker. A front-end learning project.</p>
+</footer>
 
 </body>
 </html>
