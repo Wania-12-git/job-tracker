@@ -9,7 +9,7 @@ const app = express();
 app.use(cors({
     origin: "https://wania-12-git.github.io"
 }));
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
