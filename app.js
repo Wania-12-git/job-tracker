@@ -1,37 +1,11 @@
+
 "use strict";
 
 // ======================================
-// 1. DEFAULT APPLICATIONS
+// 1. APPLICATION DATA
 // ======================================
 
-const STORAGE_KEY = "jobtracker_applications";
-
-const DEFAULT_APPLICATIONS = [
-  {
-    id: 1,
-    company: "Google",
-    position: "Junior Web Developer",
-    location: "Toronto",
-    date: "2026-10-20",
-    status: "Interview"
-  },
-  {
-    id: 2,
-    company: "Microsoft",
-    position: "Software Engineer",
-    location: "Vancouver",
-    date: "2026-10-25",
-    status: "Applied"
-  },
-  {
-    id: 3,
-    company: "Amazon",
-    position: "Frontend Developer",
-    location: "New York",
-    date: "2026-10-30",
-    status: "Applied"
-  }
-];
+const API_URL = "/api/applications";
 
 const VALID_STATUSES = [
   "Applied",
@@ -40,56 +14,191 @@ const VALID_STATUSES = [
   "Rejected"
 ];
 
+let applications = [];
+
 
 // ======================================
-// 2. LOAD AND SAVE DATA
+// 2. API FUNCTIONS
 // ======================================
 
-function loadApplications() {
+// GET: Load applications from Express
+
+async function loadApplications() {
   try {
-    const savedData = localStorage.getItem(STORAGE_KEY);
+    const response = await fetch(API_URL);
 
-    if (savedData === null) {
-      return [...DEFAULT_APPLICATIONS];
+    if (!response.ok) {
+      throw new Error("Could not load applications.");
     }
 
-    const parsedData = JSON.parse(savedData);
+    applications = await response.json();
 
-    if (!Array.isArray(parsedData)) {
-      return [...DEFAULT_APPLICATIONS];
-    }
-
-    return parsedData.filter(app =>
-      app &&
-      Number.isFinite(app.id) &&
-      typeof app.company === "string" &&
-      typeof app.position === "string" &&
-      typeof app.location === "string" &&
-      typeof app.date === "string" &&
-      VALID_STATUSES.includes(app.status)
-    );
+    displayApplications();
 
   } catch (error) {
-    console.error("Error loading applications:", error);
-    return [...DEFAULT_APPLICATIONS];
+    console.error("Loading error:", error);
+
+    const message = document.getElementById("empty-message");
+
+    if (message) {
+      message.textContent =
+        "Could not connect to the server. Is it running?";
+    }
   }
 }
 
-let applications = loadApplications();
 
+// POST: Add an application
 
-function saveApplications() {
+async function addApplication(event) {
+  event.preventDefault();
+
+  const company =
+    document.getElementById("company").value.trim();
+
+  const position =
+    document.getElementById("position").value.trim();
+
+  const location =
+    document.getElementById("location").value.trim();
+
+  const date =
+    document.getElementById("date").value;
+
+  const status =
+    document.getElementById("status").value;
+
+  const message =
+    document.getElementById("application-message");
+
+  if (!company || !position || !location || !date) {
+    message.textContent = "Please complete every field.";
+    return;
+  }
+
+  if (!VALID_STATUSES.includes(status)) {
+    message.textContent = "Please select a valid status.";
+    return;
+  }
+
+  const newApplication = {
+    company,
+    position,
+    location,
+    date,
+    status
+  };
+
   try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(applications)
-    );
+    const response = await fetch(API_URL, {
+      method: "POST",
 
-    return true;
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify(newApplication)
+    });
+
+    if (!response.ok) {
+      throw new Error("Could not add application.");
+    }
+
+    const savedApplication = await response.json();
+
+    applications.push(savedApplication);
+
+    displayApplications();
+
+    document.getElementById("application-form").reset();
+
+    message.textContent = "Application added successfully!";
 
   } catch (error) {
-    console.error("Error saving applications:", error);
-    return false;
+    console.error("Add error:", error);
+
+    message.textContent =
+      "Could not add application. Check your server.";
+  }
+}
+
+
+// PUT: Update an application's status
+
+async function updateApplication(id, newStatus) {
+  if (!VALID_STATUSES.includes(newStatus)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_URL}/${encodeURIComponent(id)}`,
+      {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          status: newStatus
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Could not update application.");
+    }
+
+    const updatedApplication = await response.json();
+
+    applications = applications.map(app =>
+      app.id === id ? updatedApplication : app
+    );
+
+    displayApplications();
+
+    document.getElementById("application-message").textContent =
+      "Status updated successfully!";
+
+  } catch (error) {
+    console.error("Update error:", error);
+
+    document.getElementById("application-message").textContent =
+      "Could not update status.";
+
+    await loadApplications();
+  }
+}
+
+
+// DELETE: Remove an application
+
+async function deleteApplication(id) {
+  try {
+    const response = await fetch(
+      `${API_URL}/${encodeURIComponent(id)}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Could not delete application.");
+    }
+
+    applications = applications.filter(app => app.id !== id);
+
+    displayApplications();
+
+    document.getElementById("application-message").textContent =
+      "Application deleted successfully!";
+
+  } catch (error) {
+    console.error("Delete error:", error);
+
+    document.getElementById("application-message").textContent =
+      "Could not delete application.";
   }
 }
 
@@ -99,7 +208,6 @@ function saveApplications() {
 // ======================================
 
 function updateStatistics() {
-
   const total = applications.length;
 
   const applied = applications.filter(
@@ -129,26 +237,25 @@ function updateStatistics() {
 // ======================================
 
 function displayApplications() {
-
   const table = document.getElementById("applications-table");
 
   if (!table) return;
 
-  const selectedFilter =
-    document.getElementById("status-filter").value;
+  const filter = document.getElementById("status-filter");
+
+  const selectedFilter = filter ? filter.value : "All";
 
   table.replaceChildren();
 
   const filteredApplications = applications.filter(app => {
-
     return selectedFilter === "All" ||
-           app.status === selectedFilter;
-
+      app.status === selectedFilter;
   });
 
   filteredApplications.forEach(app => {
-
     const row = document.createElement("tr");
+
+    // COMPANY, POSITION, LOCATION AND DATE
 
     const values = [
       app.company,
@@ -158,27 +265,45 @@ function displayApplications() {
     ];
 
     values.forEach(value => {
-
       const cell = document.createElement("td");
 
       cell.textContent = value;
 
       row.appendChild(cell);
-
     });
 
 
-    // STATUS
+    // STATUS DROPDOWN
 
     const statusCell = document.createElement("td");
 
-    const statusBadge = document.createElement("span");
+    const statusSelect = document.createElement("select");
 
-    statusBadge.className = "status";
+    statusSelect.className = "status-select";
 
-    statusBadge.textContent = app.status;
+    statusSelect.setAttribute(
+      "aria-label",
+      `Change status for ${app.company}`
+    );
 
-    statusCell.appendChild(statusBadge);
+    VALID_STATUSES.forEach(status => {
+      const option = document.createElement("option");
+
+      option.value = status;
+      option.textContent = status;
+
+      if (app.status === status) {
+        option.selected = true;
+      }
+
+      statusSelect.appendChild(option);
+    });
+
+    statusSelect.addEventListener("change", () => {
+      updateApplication(app.id, statusSelect.value);
+    });
+
+    statusCell.appendChild(statusSelect);
 
     row.appendChild(statusCell);
 
@@ -204,7 +329,6 @@ function displayApplications() {
     row.appendChild(actionCell);
 
     table.appendChild(row);
-
   });
 
 
@@ -212,10 +336,11 @@ function displayApplications() {
 
   const emptyMessage = document.getElementById("empty-message");
 
-  if (filteredApplications.length === 0) {
-    emptyMessage.textContent = "No applications found.";
-  } else {
-    emptyMessage.textContent = "";
+  if (emptyMessage) {
+    emptyMessage.textContent =
+      filteredApplications.length === 0
+        ? "No applications found."
+        : "";
   }
 
   updateStatistics();
@@ -223,86 +348,10 @@ function displayApplications() {
 
 
 // ======================================
-// 5. ADD APPLICATION
-// ======================================
-
-function addApplication(event) {
-
-  event.preventDefault();
-
-  const company = document.getElementById("company").value.trim();
-
-  const position = document.getElementById("position").value.trim();
-
-  const location = document.getElementById("location").value.trim();
-
-  const date = document.getElementById("date").value;
-
-  const status = document.getElementById("status").value;
-
-  const message = document.getElementById("application-message");
-
-
-  if (!company || !position || !location || !date) {
-    message.textContent = "Please complete every field.";
-    return;
-  }
-
-  if (!VALID_STATUSES.includes(status)) {
-    message.textContent = "Please select a valid status.";
-    return;
-  }
-
-
-  const newApplication = {
-    id: Date.now(),
-    company,
-    position,
-    location,
-    date,
-    status
-  };
-
-
-  applications.push(newApplication);
-
-  const saved = saveApplications();
-
-  displayApplications();
-
-  document.getElementById("application-form").reset();
-
-  message.textContent = saved
-    ? "Application added successfully!"
-    : "Added temporarily, but could not save it.";
-
-}
-
-
-// ======================================
-// 6. DELETE APPLICATION
-// ======================================
-
-function deleteApplication(id) {
-
-  applications = applications.filter(app => app.id !== id);
-
-  saveApplications();
-
-  displayApplications();
-
-  document.getElementById("application-message").textContent =
-    "Application deleted.";
-
-}
-
-
-// ======================================
-// 7. DASHBOARD EVENTS
+// 5. DASHBOARD EVENTS
 // ======================================
 
 function setupDashboard() {
-
   const form = document.getElementById("application-form");
 
   const filter = document.getElementById("status-filter");
@@ -313,61 +362,51 @@ function setupDashboard() {
 
   filter.addEventListener("change", displayApplications);
 
-  displayApplications();
-
+  loadApplications();
 }
 
 
 // ======================================
-// 8. LOGIN DEMONSTRATION
+// 6. LOGIN DEMONSTRATION
 // ======================================
 
 function setupLogin() {
-
   const form = document.getElementById("login-form");
 
   if (!form) return;
 
   form.addEventListener("submit", event => {
-
     event.preventDefault();
 
     document.getElementById("login-message").textContent =
       "Demo only: real authentication is not connected yet.";
-
   });
-
 }
 
 
 // ======================================
-// 9. SIGNUP DEMONSTRATION
+// 7. SIGNUP DEMONSTRATION
 // ======================================
 
 function setupSignup() {
-
   const form = document.getElementById("signup-form");
 
   if (!form) return;
 
   form.addEventListener("submit", event => {
-
     event.preventDefault();
 
     document.getElementById("signup-message").textContent =
       "Demo only: account creation is not connected yet.";
-
   });
-
 }
 
 
 // ======================================
-// 10. START THE APPLICATION
+// 8. START THE APPLICATION
 // ======================================
 
 document.addEventListener("DOMContentLoaded", () => {
-
   setupDashboard();
 
   setupLogin();
@@ -375,5 +414,4 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSignup();
 
   console.log("JobTracker successfully loaded!");
-
 });
