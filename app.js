@@ -5,7 +5,7 @@
 // 1. APPLICATION DATA
 // ======================================
 
-const API_URL = "/api/applications";
+const API_URL = "https://job-tracker-api-nlc9.onrender.com/api/applications";
 
 const VALID_STATUSES = [
   "Applied",
