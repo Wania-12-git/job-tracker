@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,64 +25,31 @@
 <main class="auth-container">
   <section class="auth-card">
     <h1>Welcome back</h1>
-    <p>Login functionality is currently a demonstration.</p>
+    <p>Log in to manage your job applications.</p>
 
     <form id="login-form">
       <label for="email">Email address</label>
-      <input type="email" id="email" required placeholder="you@example.com">
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        autocomplete="email"
+        placeholder="you@example.com"
+      >
 
       <label for="password">Password</label>
-      <input type="password" id="password" required placeholder="Password">
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        autocomplete="current-password"
+        placeholder="Your password"
+      >
 
       <button class="button full" type="submit">Login</button>
-      <p id="login-message" class="message" role="status"></p>
-    </form>
 
-    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
-  </section>
-</main>
-
-<footer>
-  <p>© 2026 JobTracker.</p>
-</footer>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JobTracker | Login</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
-</head>
-<body>
-
-<header class="header">
-  <a class="logo" href="index.html">JobTracker<span>.</span></a>
-  <p>Welcome back!</p>
-</header>
-
-<nav class="navigation">
-  <a href="index.html">Home</a>
-  <a class="active" href="login.html">Login</a>
-  <a href="signup.html">Sign Up</a>
-  <a href="dashboard.html">Dashboard</a>
-</nav>
-
-<main class="auth-container">
-  <section class="auth-card">
-    <h1>Welcome back</h1>
-    <p>Login functionality is currently a demonstration.</p>
-
-    <form id="login-form">
-      <label for="email">Email address</label>
-      <input type="email" id="email" required placeholder="you@example.com">
-
-      <label for="password">Password</label>
-      <input type="password" id="password" required placeholder="Password">
-
-      <button class="button full" type="submit">Login</button>
       <p id="login-message" class="message" role="status"></p>
     </form>
 

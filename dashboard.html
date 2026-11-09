@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +20,7 @@
   <a href="login.html">Login</a>
   <a href="signup.html">Sign Up</a>
   <a class="active" href="dashboard.html">Dashboard</a>
+  <button id="logout-button" class="button" type="button">Logout</button>
 </nav>
 
 <main class="dashboard">
@@ -94,17 +96,17 @@
       <div class="form-grid">
         <div>
           <label for="company">Company Name</label>
-          <input type="text" id="company" required placeholder="Company">
+          <input type="text" id="company" required maxlength="100" placeholder="Company">
         </div>
 
         <div>
           <label for="position">Job Position</label>
-          <input type="text" id="position" required placeholder="Job title">
+          <input type="text" id="position" required maxlength="100" placeholder="Job title">
         </div>
 
         <div>
           <label for="location">Location</label>
-          <input type="text" id="location" required placeholder="City">
+          <input type="text" id="location" required maxlength="100" placeholder="City">
         </div>
 
         <div>

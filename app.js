@@ -2,10 +2,14 @@
 "use strict";
 
 // ======================================
-// 1. APPLICATION DATA
+// 1. CONFIGURATION
 // ======================================
 
-const API_URL = "https://job-tracker-api-nlc9.onrender.com/api/applications";
+const API_BASE_URL = "https://job-tracker-api-nlc9.onrender.com/api";
+
+const API_URL = `${API_BASE_URL}/applications`;
+
+const TOKEN_KEY = "jobtracker_token";
 
 const VALID_STATUSES = [
   "Applied",
@@ -18,14 +22,185 @@ let applications = [];
 
 
 // ======================================
-// 2. API FUNCTIONS
+// 2. AUTHENTICATION HELPERS
 // ======================================
 
-// GET: Load applications from Express
+function getToken() {
+  return sessionStorage.getItem(TOKEN_KEY);
+}
+
+function saveToken(token) {
+  sessionStorage.setItem(TOKEN_KEY, token);
+}
+
+function logout() {
+  sessionStorage.removeItem(TOKEN_KEY);
+  window.location.href = "login.html";
+}
+
+function authHeaders(extraHeaders = {}) {
+  return {
+    ...extraHeaders,
+    Authorization: `Bearer ${getToken()}`
+  };
+}
+
+async function handleUnauthorized(response) {
+  if (response.status === 401) {
+    sessionStorage.removeItem(TOKEN_KEY);
+    window.location.href = "login.html";
+    return true;
+  }
+
+  return false;
+}
+
+
+// ======================================
+// 3. SIGN UP
+// ======================================
+
+function setupSignup() {
+  const form = document.getElementById("signup-form");
+
+  if (!form) return;
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const message = document.getElementById("signup-message");
+    const button = form.querySelector('button[type="submit"]');
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+
+    message.textContent = "";
+
+    if (name.length < 2 || password.length < 8) {
+      message.textContent = "Please check your name and password.";
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Creating account...";
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not create account.");
+      }
+
+      saveToken(data.token);
+
+      message.textContent = "Account created successfully!";
+
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      message.textContent = error.message;
+    } finally {
+      button.disabled = false;
+      button.textContent = "Create Account";
+    }
+  });
+}
+
+
+// ======================================
+// 4. LOGIN
+// ======================================
+
+function setupLogin() {
+  const form = document.getElementById("login-form");
+
+  if (!form) return;
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const message = document.getElementById("login-message");
+    const button = form.querySelector('button[type="submit"]');
+
+    const emailInput =
+      document.getElementById("login-email") ||
+      document.getElementById("email");
+
+    const passwordInput =
+      document.getElementById("login-password") ||
+      document.getElementById("password");
+
+    if (!emailInput || !passwordInput) {
+      message.textContent = "Login form fields are missing.";
+      return;
+    }
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    message.textContent = "";
+
+    button.disabled = true;
+    button.textContent = "Logging in...";
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed.");
+      }
+
+      saveToken(data.token);
+
+      message.textContent = "Login successful!";
+
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      message.textContent = error.message;
+    } finally {
+      button.disabled = false;
+      button.textContent = "Login";
+    }
+  });
+}
+
+
+// ======================================
+// 5. LOAD APPLICATIONS
+// ======================================
 
 async function loadApplications() {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+      headers: authHeaders()
+    });
+
+    if (await handleUnauthorized(response)) return;
 
     if (!response.ok) {
       throw new Error("Could not load applications.");
@@ -42,34 +217,26 @@ async function loadApplications() {
 
     if (message) {
       message.textContent =
-        "Could not connect to the server. Is it running?";
+        "Could not connect to the server. Please try again.";
     }
   }
 }
 
 
-// POST: Add an application
+// ======================================
+// 6. ADD APPLICATION
+// ======================================
 
 async function addApplication(event) {
   event.preventDefault();
 
-  const company =
-    document.getElementById("company").value.trim();
+  const company = document.getElementById("company").value.trim();
+  const position = document.getElementById("position").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const date = document.getElementById("date").value;
+  const status = document.getElementById("status").value;
 
-  const position =
-    document.getElementById("position").value.trim();
-
-  const location =
-    document.getElementById("location").value.trim();
-
-  const date =
-    document.getElementById("date").value;
-
-  const status =
-    document.getElementById("status").value;
-
-  const message =
-    document.getElementById("application-message");
+  const message = document.getElementById("application-message");
 
   if (!company || !position || !location || !date) {
     message.textContent = "Please complete every field.";
@@ -81,32 +248,30 @@ async function addApplication(event) {
     return;
   }
 
-  const newApplication = {
-    company,
-    position,
-    location,
-    date,
-    status
-  };
-
   try {
     const response = await fetch(API_URL, {
       method: "POST",
-
-      headers: {
+      headers: authHeaders({
         "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(newApplication)
+      }),
+      body: JSON.stringify({
+        company,
+        position,
+        location,
+        date,
+        status
+      })
     });
 
+    if (await handleUnauthorized(response)) return;
+
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error("Could not add application.");
+      throw new Error(data.error || "Could not add application.");
     }
 
-    const savedApplication = await response.json();
-
-    applications.push(savedApplication);
+    applications.push(data);
 
     displayApplications();
 
@@ -116,44 +281,42 @@ async function addApplication(event) {
 
   } catch (error) {
     console.error("Add error:", error);
-
-    message.textContent =
-      "Could not add application. Check your server.";
+    message.textContent = error.message;
   }
 }
 
 
-// PUT: Update an application's status
+// ======================================
+// 7. UPDATE APPLICATION
+// ======================================
 
 async function updateApplication(id, newStatus) {
-  if (!VALID_STATUSES.includes(newStatus)) {
-    return;
-  }
+  if (!VALID_STATUSES.includes(newStatus)) return;
 
   try {
     const response = await fetch(
       `${API_URL}/${encodeURIComponent(id)}`,
       {
         method: "PUT",
-
-        headers: {
+        headers: authHeaders({
           "Content-Type": "application/json"
-        },
-
+        }),
         body: JSON.stringify({
           status: newStatus
         })
       }
     );
 
+    if (await handleUnauthorized(response)) return;
+
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error("Could not update application.");
+      throw new Error(data.error || "Could not update application.");
     }
 
-    const updatedApplication = await response.json();
-
     applications = applications.map(app =>
-      app.id === id ? updatedApplication : app
+      app.id === id ? data : app
     );
 
     displayApplications();
@@ -165,26 +328,33 @@ async function updateApplication(id, newStatus) {
     console.error("Update error:", error);
 
     document.getElementById("application-message").textContent =
-      "Could not update status.";
+      error.message;
 
     await loadApplications();
   }
 }
 
 
-// DELETE: Remove an application
+// ======================================
+// 8. DELETE APPLICATION
+// ======================================
 
 async function deleteApplication(id) {
   try {
     const response = await fetch(
       `${API_URL}/${encodeURIComponent(id)}`,
       {
-        method: "DELETE"
+        method: "DELETE",
+        headers: authHeaders()
       }
     );
 
+    if (await handleUnauthorized(response)) return;
+
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error("Could not delete application.");
+      throw new Error(data.error || "Could not delete application.");
     }
 
     applications = applications.filter(app => app.id !== id);
@@ -198,13 +368,13 @@ async function deleteApplication(id) {
     console.error("Delete error:", error);
 
     document.getElementById("application-message").textContent =
-      "Could not delete application.";
+      error.message;
   }
 }
 
 
 // ======================================
-// 3. UPDATE STATISTICS
+// 9. UPDATE STATISTICS
 // ======================================
 
 function updateStatistics() {
@@ -223,17 +393,14 @@ function updateStatistics() {
   ).length;
 
   document.getElementById("total-count").textContent = total;
-
   document.getElementById("applied-count").textContent = applied;
-
   document.getElementById("interview-count").textContent = interviews;
-
   document.getElementById("offer-count").textContent = offers;
 }
 
 
 // ======================================
-// 4. DISPLAY APPLICATIONS
+// 10. DISPLAY APPLICATIONS
 // ======================================
 
 function displayApplications() {
@@ -247,15 +414,12 @@ function displayApplications() {
 
   table.replaceChildren();
 
-  const filteredApplications = applications.filter(app => {
-    return selectedFilter === "All" ||
-      app.status === selectedFilter;
-  });
+  const filteredApplications = applications.filter(app =>
+    selectedFilter === "All" || app.status === selectedFilter
+  );
 
   filteredApplications.forEach(app => {
     const row = document.createElement("tr");
-
-    // COMPANY, POSITION, LOCATION AND DATE
 
     const values = [
       app.company,
@@ -266,17 +430,13 @@ function displayApplications() {
 
     values.forEach(value => {
       const cell = document.createElement("td");
-
       cell.textContent = value;
-
       row.appendChild(cell);
     });
 
-
-    // STATUS DROPDOWN
+    // STATUS
 
     const statusCell = document.createElement("td");
-
     const statusSelect = document.createElement("select");
 
     statusSelect.className = "status-select";
@@ -291,10 +451,7 @@ function displayApplications() {
 
       option.value = status;
       option.textContent = status;
-
-      if (app.status === status) {
-        option.selected = true;
-      }
+      option.selected = app.status === status;
 
       statusSelect.appendChild(option);
     });
@@ -304,20 +461,15 @@ function displayApplications() {
     });
 
     statusCell.appendChild(statusSelect);
-
     row.appendChild(statusCell);
 
-
-    // DELETE BUTTON
+    // DELETE
 
     const actionCell = document.createElement("td");
-
     const deleteButton = document.createElement("button");
 
     deleteButton.type = "button";
-
     deleteButton.className = "delete-button";
-
     deleteButton.textContent = "Delete";
 
     deleteButton.addEventListener("click", () => {
@@ -325,14 +477,10 @@ function displayApplications() {
     });
 
     actionCell.appendChild(deleteButton);
-
     row.appendChild(actionCell);
 
     table.appendChild(row);
   });
-
-
-  // EMPTY MESSAGE
 
   const emptyMessage = document.getElementById("empty-message");
 
@@ -348,15 +496,19 @@ function displayApplications() {
 
 
 // ======================================
-// 5. DASHBOARD EVENTS
+// 11. DASHBOARD
 // ======================================
 
 function setupDashboard() {
   const form = document.getElementById("application-form");
-
   const filter = document.getElementById("status-filter");
 
   if (!form || !filter) return;
+
+  if (!getToken()) {
+    window.location.href = "login.html";
+    return;
+  }
 
   form.addEventListener("submit", addApplication);
 
@@ -367,51 +519,27 @@ function setupDashboard() {
 
 
 // ======================================
-// 6. LOGIN DEMONSTRATION
+// 12. LOGOUT
 // ======================================
 
-function setupLogin() {
-  const form = document.getElementById("login-form");
+function setupLogout() {
+  const logoutButton = document.getElementById("logout-button");
 
-  if (!form) return;
-
-  form.addEventListener("submit", event => {
-    event.preventDefault();
-
-    document.getElementById("login-message").textContent =
-      "Demo only: real authentication is not connected yet.";
-  });
+  if (logoutButton) {
+    logoutButton.addEventListener("click", logout);
+  }
 }
 
 
 // ======================================
-// 7. SIGNUP DEMONSTRATION
-// ======================================
-
-function setupSignup() {
-  const form = document.getElementById("signup-form");
-
-  if (!form) return;
-
-  form.addEventListener("submit", event => {
-    event.preventDefault();
-
-    document.getElementById("signup-message").textContent =
-      "Demo only: account creation is not connected yet.";
-  });
-}
-
-
-// ======================================
-// 8. START THE APPLICATION
+// 13. START APPLICATION
 // ======================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupDashboard();
-
-  setupLogin();
-
   setupSignup();
+  setupLogin();
+  setupDashboard();
+  setupLogout();
 
   console.log("JobTracker successfully loaded!");
 });
